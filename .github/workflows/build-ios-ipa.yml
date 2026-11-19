@@ -1,0 +1,49 @@
+name: Build iOS ClashRoyaleAI IPA
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-ipa:
+    runs-on: macos-14
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: |
+          which xcodegen || brew install xcodegen
+
+      - name: Generate Xcode Project from project.yml
+        run: xcodegen generate
+
+      - name: Build Unsigned iOS App Bundle (iphoneos)
+        run: |
+          xcodebuild clean build \
+            -project ClashRoyaleAI.xcodeproj \
+            -scheme ClashRoyaleAIApp \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath "$RUNNER_TEMP/DerivedData" \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            AD_HOC_CODE_SIGNING_ALLOWED=YES
+
+      - name: Package .app into Sideloadable ClashRoyaleAI.ipa
+        run: |
+          APP_PATH=$(find "$RUNNER_TEMP/DerivedData" -name "ClashRoyaleAIApp.app" -type d | head -n 1)
+          echo "Built App Path: $APP_PATH"
+          mkdir -p "$RUNNER_TEMP/Payload"
+          cp -R "$APP_PATH" "$RUNNER_TEMP/Payload/"
+          cd "$RUNNER_TEMP"
+          zip -qry ClashRoyaleAI.ipa Payload
+          cp "$RUNNER_TEMP/ClashRoyaleAI.ipa" "$GITHUB_WORKSPACE/ClashRoyaleAI.ipa"
+
+      - name: Upload ClashRoyaleAI.ipa Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ClashRoyaleAI-iOS-IPA
+          path: ClashRoyaleAI.ipa
