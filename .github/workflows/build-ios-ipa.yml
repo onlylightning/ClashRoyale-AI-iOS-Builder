@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-ipa:
-    runs-on: macos-14
+    runs-on: macos-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -36,6 +36,10 @@ jobs:
         run: |
           APP_PATH=$(find "$RUNNER_TEMP/DerivedData" -name "ClashRoyaleAIApp.app" -type d | head -n 1)
           echo "Built App Path: $APP_PATH"
+          if [ -z "$APP_PATH" ]; then
+            echo "ERROR: ClashRoyaleAIApp.app not found!"
+            exit 1
+          fi
           mkdir -p "$RUNNER_TEMP/Payload"
           cp -R "$APP_PATH" "$RUNNER_TEMP/Payload/"
           cd "$RUNNER_TEMP"
