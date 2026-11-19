@@ -1,0 +1,65 @@
+name: ClashRoyaleAI
+options:
+  bundleIdPrefix: com.clashroyale
+  deploymentTarget:
+    iOS: "16.0"
+  xcodeVersion: "15.0"
+
+targets:
+  ClashRoyaleAIApp:
+    type: application
+    platform: iOS
+    sources:
+      - path: Shared
+      - path: ClashRoyaleAIApp
+        excludes:
+          - Info.plist
+          - "*.entitlements"
+    info:
+      path: ClashRoyaleAIApp/Info.plist
+    entitlements:
+      path: ClashRoyaleAIApp/ClashRoyaleAIApp.entitlements
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.clashroyale.aicoach
+        PRODUCT_NAME: ClashRoyaleAIApp
+        GENERATE_INFOPLIST_FILE: NO
+        SWIFT_VERSION: "5.9"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+    dependencies:
+      - target: ClashRoyaleBroadcastExtension
+        embed: true
+        codeSign: false
+      - sdk: ReplayKit.framework
+      - sdk: AVKit.framework
+      - sdk: AVFoundation.framework
+      - sdk: Vision.framework
+      - sdk: CoreML.framework
+
+  ClashRoyaleBroadcastExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Shared
+      - path: ClashRoyaleBroadcastExtension
+        excludes:
+          - Info.plist
+          - "*.entitlements"
+    info:
+      path: ClashRoyaleBroadcastExtension/Info.plist
+    entitlements:
+      path: ClashRoyaleBroadcastExtension/ClashRoyaleBroadcastExtension.entitlements
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.clashroyale.aicoach.BroadcastExtension
+        PRODUCT_NAME: ClashRoyaleBroadcastExtension
+        GENERATE_INFOPLIST_FILE: NO
+        SWIFT_VERSION: "5.9"
+        SKIP_INSTALL: YES
+        IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+    dependencies:
+      - sdk: ReplayKit.framework
+      - sdk: Vision.framework
+      - sdk: CoreML.framework
+      - sdk: CoreVideo.framework
